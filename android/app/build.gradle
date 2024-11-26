@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.call_guard"
-    compileSdk = 33
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
