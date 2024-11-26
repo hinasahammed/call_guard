@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -39,13 +40,6 @@ class CallServices {
     }
   }
 
-  Future<void> addSampleContacts() async {
-    if (_contactsBox.isEmpty) {
-      _contactsBox.put('+917994975594', 'Diya shajith k');
-      _contactsBox.put('0987654321', 'Jane Smith');
-    }
-  }
-
   Future<void> _onIncomingCall(MethodCall call) async {
     if (call.method == 'onIncomingCall') {
       final phoneNumber = call.arguments as String?;
@@ -54,10 +48,11 @@ class CallServices {
         final name = _contactsBox.get(phoneNumber);
         if (name != null) {
           log('Caller name found: $name');
-          _showNotification(name);
+          // Trigger the overlay to show when an incoming call is detected
+          showOverlay(name);
         } else {
-          _showNotification("Unknown user");
           log('Caller not found in contacts');
+          showOverlay("Unknown user");
         }
       } else {
         log('No phone number received');
@@ -65,7 +60,28 @@ class CallServices {
     }
   }
 
-  void _showNotification(String name) async {
+  void showOverlay(String name) async {
+  if (await FlutterOverlayWindow.isActive()) {
+    await FlutterOverlayWindow.closeOverlay();
+  }
+
+  final box = await Hive.openBox('overlay_data');
+  await box.put('caller_name', name);
+
+  // Flush data to persistent storage
+  await box.flush();
+
+  await FlutterOverlayWindow.showOverlay(
+    overlayTitle: "Incoming Call",
+    overlayContent: 'Incoming call from: $name',
+    height: 300,
+    width: 650,
+    alignment: OverlayAlignment.center,
+  );
+}
+
+
+  void showNotification(String name) async {
     const androidDetails = AndroidNotificationDetails(
       'call_channel',
       'Incoming Call',

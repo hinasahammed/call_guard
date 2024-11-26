@@ -1,6 +1,9 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:call_guard/services/call_services.dart';
 import 'package:call_guard/view/add_number.dart';
-import 'package:flutter/material.dart';
 
 class IncomingCall extends StatefulWidget {
   const IncomingCall({super.key});
@@ -15,10 +18,24 @@ class _IncomingCallState extends State<IncomingCall> {
   @override
   void initState() {
     super.initState();
+    _requestOverlayPermission();
     _callHandler = CallServices(context);
     _callHandler.initialize();
   }
 
+  Future<void> _requestOverlayPermission() async {
+    final bool status = await FlutterOverlayWindow.isPermissionGranted();
+    if (!status) {
+      final bool permissionGranted = await FlutterOverlayWindow.requestPermission()??false;
+      if (permissionGranted) {
+        log("Overlay permission granted");
+      } else {
+        log("Overlay permission denied");
+      }
+    }
+  }
+
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
