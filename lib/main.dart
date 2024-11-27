@@ -6,6 +6,7 @@ import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('contact');
   await Hive.openBox('overlay_data');
@@ -38,14 +39,8 @@ void overlayMain() async {
   log('overlayMain started');
   await Hive.initFlutter();
 
-  // Retry opening the box until it contains data
   final box = await Hive.openBox('overlay_data');
-  for (int i = 0; i < 5; i++) {
-    final String? callerName = box.get('caller_name');
-    if (callerName != null) break;
-    log('Waiting for caller_name data...');
-    await Future.delayed(const Duration(milliseconds: 100));
-  }
+ 
 
   final String callerName = box.get('caller_name') ?? "Unknown User";
   log('Retrieved caller_name in overlayMain: $callerName');
@@ -54,8 +49,8 @@ void overlayMain() async {
     debugShowCheckedModeBanner: false,
     home: Material(
       child: Container(
-        width: 650,
-        height: 300,
+        width: 700,
+        height: 500,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.black.withOpacity(.5))),

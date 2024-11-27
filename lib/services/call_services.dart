@@ -44,14 +44,15 @@ class CallServices {
     if (call.method == 'onIncomingCall') {
       final phoneNumber = call.arguments as String?;
       if (phoneNumber != null) {
-        log('Incoming call detected: $phoneNumber'); // Flutter debug
+        log('Incoming call detected: $phoneNumber');
         final name = _contactsBox.get(phoneNumber);
         if (name != null) {
           log('Caller name found: $name');
-          // Trigger the overlay to show when an incoming call is detected
+          showNotification(name);
           showOverlay(name);
         } else {
           log('Caller not found in contacts');
+          showNotification("Unknown user");
           showOverlay("Unknown user");
         }
       } else {
@@ -61,25 +62,22 @@ class CallServices {
   }
 
   void showOverlay(String name) async {
-  if (await FlutterOverlayWindow.isActive()) {
-    await FlutterOverlayWindow.closeOverlay();
+    if (await FlutterOverlayWindow.isActive()) {
+      await FlutterOverlayWindow.closeOverlay();
+    }
+
+    final box = await Hive.openBox('overlay_data');
+    await box.put('caller_name', name);
+    await box.flush();
+
+    await FlutterOverlayWindow.showOverlay(
+      overlayTitle: "Incoming Call",
+      overlayContent: 'Incoming call from: $name',
+      height: 500,
+      width: 700,
+      alignment: OverlayAlignment.center,
+    );
   }
-
-  final box = await Hive.openBox('overlay_data');
-  await box.put('caller_name', name);
-
-  // Flush data to persistent storage
-  await box.flush();
-
-  await FlutterOverlayWindow.showOverlay(
-    overlayTitle: "Incoming Call",
-    overlayContent: 'Incoming call from: $name',
-    height: 300,
-    width: 650,
-    alignment: OverlayAlignment.center,
-  );
-}
-
 
   void showNotification(String name) async {
     const androidDetails = AndroidNotificationDetails(
