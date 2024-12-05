@@ -8,13 +8,14 @@ import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CallServices {
+  CallServices(this.context);
+
   final BuildContext context;
   static const MethodChannel _methodChannel = MethodChannel('call_channel');
   late Box _contactsBox;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  CallServices(this.context);
 
   void initialize() async {
     await _requestPermissions();

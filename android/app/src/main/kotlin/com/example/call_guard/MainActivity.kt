@@ -12,7 +12,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).also { channel ->
-            CallReceiver.methodChannel = channel // Assign to CallReceiver
+            CallReceiver.methodChannel = channel 
             channel.setMethodCallHandler { call, result ->
                 if (call.method == "initialize") {
                     result.success(null)

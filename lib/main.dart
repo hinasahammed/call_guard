@@ -13,7 +13,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-// Your normal app entry point
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
